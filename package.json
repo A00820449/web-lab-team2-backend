@@ -1,0 +1,22 @@
+{
+  "name": "web-lab-team2-backend",
+  "version": "1.0.0",
+  "description": "Web lab final project",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/A00820449/web-lab-team2-backend.git"
+  },
+  "author": "a00820449",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/A00820449/web-lab-team2-backend/issues"
+  },
+  "homepage": "https://github.com/A00820449/web-lab-team2-backend#readme",
+  "dependencies": {
+    "koa": "^2.13.4"
+  }
+}
