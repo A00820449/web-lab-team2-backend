@@ -75,6 +75,7 @@ router.post("/create", async (ctx, next)=>{
     try {
         newUser = await User.create({username: username})
     } catch (e) {
+        console.error(e)
         if (e.code === 11000) {
             ctx.status = 409
             ctx.body = {
