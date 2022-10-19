@@ -18,9 +18,12 @@
   },
   "homepage": "https://github.com/A00820449/web-lab-team2-backend#readme",
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "dotenv": "^16.0.3",
     "kcors": "^2.2.2",
     "koa": "^2.13.4",
     "koa-body": "^5.0.0",
-    "koa-router": "^12.0.0"
+    "koa-router": "^12.0.0",
+    "mongoose": "^6.6.5"
   }
 }
