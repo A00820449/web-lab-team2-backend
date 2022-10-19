@@ -2,7 +2,7 @@
   "name": "web-lab-team2-backend",
   "version": "1.0.0",
   "description": "Web lab final project",
-  "main": "server.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/A00820449/web-lab-team2-backend#readme",
   "dependencies": {
-    "koa": "^2.13.4"
+    "koa": "^2.13.4",
+    "koa-router": "^12.0.0"
   }
 }
