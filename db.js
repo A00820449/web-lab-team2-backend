@@ -26,4 +26,4 @@ mongoose.connect(mongoConnectionString, ()=>{
     console.log('Connected to database');
 })
 
-module.exports = {User}
+module.exports = { User }
