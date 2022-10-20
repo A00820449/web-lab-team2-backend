@@ -1,7 +1,22 @@
 const Router = require("koa-router")
+const jwt = require("jsonwebtoken")
 const { User } = require("../db")
 
 const router = new Router()
+const JWT_SECRET = process.env.JWT_SECRET || "secret"
+
+/**
+ * @param {string} token 
+ */
+function verifyAndDecodeJWT(token) {
+    try {
+        const decoded = jwt.verify(token, JWT_SECRET)
+        return decoded
+    }
+    catch(e) {
+        return null
+    }
+}
 
 router.get("/auth", async (ctx, next)=>{
     /**
@@ -17,7 +32,7 @@ router.get("/auth", async (ctx, next)=>{
         ctx.status = 400
         ctx.body = {
             error: "Invalid request",
-            valid: false
+            token: null
         }
         return
     }
@@ -31,7 +46,52 @@ router.get("/auth", async (ctx, next)=>{
         ctx.status = 400,
         ctx.body = {
             error: "Invalid username or password",
-            valid: false
+            token: null
+        }
+        return
+    }
+
+    const token = jwt.sign({
+        id: user._id.toString(),
+        username: user.username,
+        isAdmin: user.isAdmin
+    }, JWT_SECRET, {expiresIn: "7d"})
+
+    ctx.status = 200
+    ctx.body = {
+        error: null,
+        token: token
+    }
+})
+
+router.get("/info", async (ctx)=>{
+    const token = ctx.request.headers.authorization.match(/^Bearer (.+)$/)?.[1]
+    const username = ctx.request.query.username
+    if (!token) {
+        ctx.status = 400
+        ctx.body = {
+            error: "Missing token",
+            info: {}
+        }
+        return
+    }
+    const decoded = verifyAndDecodeJWT(token)
+    if (!decoded || decoded.username !== username) {
+        ctx.status = 401
+        ctx.body = {
+            error: "Invalid token",
+            info: {}
+        }
+        return
+    }
+
+    const user = await User.findOne({username: decoded.username})
+
+    if (!user) {
+        ctx.status = 404
+        ctx.body = {
+            error: "Invalid user",
+            info: {}
         }
         return
     }
@@ -39,7 +99,13 @@ router.get("/auth", async (ctx, next)=>{
     ctx.status = 200
     ctx.body = {
         error: null,
-        valid: true
+        info: {
+            id: user._id.toString(),
+            name: user.name,
+            username: user.username,
+            isAdmin: user.isAdmin,
+            lastFreePack: user.lastFreePack
+        }
     }
 })
 
@@ -47,7 +113,11 @@ router.post("/create", async (ctx, next)=>{
     /**
      * @type {string}
      */
-    const username = ctx.request.body.username.trim()
+    const username = ctx.request.body.username?.trim()
+    /**
+     * @type {string}
+     */
+    const name = ctx.request.body.name?.trim()
     /**
      * @type {string}
      */
@@ -62,20 +132,28 @@ router.post("/create", async (ctx, next)=>{
         return
     }
 
-    if (!password.match(/^[a-zA-Z0-9!@#$%^&*]{8,32}$/)) {
+    if (!name) {
         ctx.body = {
-            error: "Invalid password",
+            error: "Invalid name",
             user_id: null
         }
         ctx.status = 400
         return
     }
 
+    if (!password.match(/^[a-zA-Z0-9!@#$%^&*]{8,32}$/)) {
+        ctx.body = {
+            error: "Invalid password",
+            user_id: null
+        }
+        ctx.status = 401
+        return
+    }
+
     let newUser
     try {
-        newUser = await User.create({username: username})
+        newUser = await User.create({username: username, name: name})
     } catch (e) {
-        console.error(e)
         if (e.code === 11000) {
             ctx.status = 409
             ctx.body = {

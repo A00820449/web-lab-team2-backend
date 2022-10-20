@@ -4,11 +4,11 @@ const bcrypt = require("bcryptjs");
 const mongoConnectionString = process.env.MONGO_URL || "mongodb://localhost:27017/test"
 
 const userSchema = new mongoose.Schema({
-    username: {type: String, unique: true},
+    username: {type: String, unique: true, required: true},
     passwordHash: String,
     name: String,
     isAdmin: {type: Boolean, default: false},
-    gotFreePack: Boolean
+    lastFreePack: {type: Number, default: -1}
 })
 userSchema.method("setPassword", async function (password){
     const hash = await bcrypt.hash(password, 10)
