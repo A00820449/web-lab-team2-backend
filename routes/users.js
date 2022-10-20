@@ -18,20 +18,20 @@ function verifyAndDecodeJWT(token) {
     }
 }
 
-router.get("/auth", async (ctx, next)=>{
+router.post("/auth", async (ctx, next)=>{
     /**
      * @type {string}
      */
-    const username = ctx.request.query.username.trim()
+    const username = ctx.request.body.username?.trim()
     /**
      * @type {string}
      */
-    const password = ctx.request.query.password
+    const password = ctx.request.body.password
 
     if (!username || !password) {
         ctx.status = 400
         ctx.body = {
-            error: "Invalid request",
+            error: "Missing username or password",
             token: null
         }
         return
@@ -66,7 +66,6 @@ router.get("/auth", async (ctx, next)=>{
 
 router.get("/info", async (ctx)=>{
     const token = ctx.request.headers.authorization.match(/^Bearer (.+)$/)?.[1]
-    const username = ctx.request.query.username
     if (!token) {
         ctx.status = 400
         ctx.body = {
@@ -76,7 +75,7 @@ router.get("/info", async (ctx)=>{
         return
     }
     const decoded = verifyAndDecodeJWT(token)
-    if (!decoded || decoded.username !== username) {
+    if (!decoded) {
         ctx.status = 401
         ctx.body = {
             error: "Invalid token",
