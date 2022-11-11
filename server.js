@@ -11,10 +11,10 @@ const router = new Router()
 router.use("/users", userRouter.routes())
 router.use("/users", userRouter.allowedMethods())
 
+app.use(morgan("dev"))
 app.use(koaBody())
 app.use(cors())
 app.use(router.routes())
 app.use(router.allowedMethods())
-app.use(morgan("dev"))
 
 module.exports = app
