@@ -32,8 +32,17 @@ userSchema.method("validatePassword", async function (password){
 })
 const User = mongoose.model("User", userSchema)
 
-mongoose.connect(mongoConnectionString, ()=>{
-    console.log('Connected to database');
-})
+function connect() {
+    return new Promise((res, rej)=>{
+        mongoose.connect(mongoConnectionString)
+        mongoose.connection.once("open", ()=>{
+            console.log('Connected to database');
+            res()
+        })
+        mongoose.connection.on("error", (e)=>{
+            rej(e)
+        })
+    })
+}
 
-module.exports = { User, Card }
+module.exports = { User, Card, close: mongoose.disconnect, connect }

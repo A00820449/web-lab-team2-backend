@@ -20,6 +20,7 @@
   "homepage": "https://github.com/A00820449/web-lab-team2-backend#readme",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "csv-parse": "^5.3.2",
     "dotenv": "^16.0.3",
     "jsonwebtoken": "^8.5.1",
     "kcors": "^2.2.2",
