@@ -7,18 +7,26 @@ const cardSchema = new mongoose.Schema({
     scientific_name: {type: String, unique: true, required: true},
     name: {type: String, required: true},
     description: {type: String, required: true},
-    imageURL: {type: String, required: true},
+    image_url: {type: String},
     rarity: {type: String, enum: ["legendary", "epic", "rare", "common"]}
 })
 const Card = mongoose.model("Card", cardSchema)
 
+const cardInCollectionSchema = new mongoose.Schema({
+    user_id: {type: String, required: true},
+    card_id: {type: String, required: true},
+    quantity: {type: Number, required: true}
+})
+cardInCollectionSchema.index({user_id: 1, card_id: 1}, {unique: true})
+const CardInCollection = mongoose.model("CardInCollection", cardInCollectionSchema)
+
 const userSchema = new mongoose.Schema({
-    username: {type: String, unique: true, required: true},
+    username: {type: String, unique: true, required: true, index: true},
     passwordHash: String,
     name: String,
     isAdmin: {type: Boolean, default: false},
     lastFreePack: {type: Number, default: -1},
-    cards: [cardSchema]
+    packQuantity: {type: Number, default: 0}
 })
 userSchema.method("setPassword", async function (password){
     const hash = await bcrypt.hash(password, 10)
@@ -32,11 +40,16 @@ userSchema.method("validatePassword", async function (password){
 })
 const User = mongoose.model("User", userSchema)
 
+const appDataSchema = new mongoose.Schema({
+    current_pack: {type: Number, default: 0}
+})
+const AppData = mongoose.model("AppData", appDataSchema)
+
 function connect() {
     return new Promise((res, rej)=>{
         mongoose.connect(mongoConnectionString)
         mongoose.connection.once("open", ()=>{
-            console.log('Connected to database');
+            console.log('Connected to database')
             res()
         })
         mongoose.connection.on("error", (e)=>{
@@ -45,4 +58,4 @@ function connect() {
     })
 }
 
-module.exports = { User, Card, close: mongoose.disconnect, connect }
+module.exports = { User, Card, CardInCollection, AppData, close: mongoose.disconnect, connect }

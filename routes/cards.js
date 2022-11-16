@@ -20,14 +20,8 @@ function verifyAndDecodeJWT(token) {
 
 router.use(async (ctx, next)=>{
     const token = ctx.request.headers.authorization?.match(/^Bearer (.+)$/)?.[1]
-    if (!token) {
-        ctx.user = null
-    }
-    const decoded = verifyAndDecodeJWT(token)
-    if (!decoded) {
-        ctx.user = null
-    }
-    ctx.user = decoded
+
+    ctx.user = verifyAndDecodeJWT(token)
     await next()
 })
 
