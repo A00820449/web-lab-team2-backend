@@ -103,7 +103,8 @@ router.get("/info", async (ctx)=>{
             name: user.name,
             username: user.username,
             isAdmin: user.isAdmin,
-            lastFreePack: user.lastFreePack
+            lastFreePack: user.lastFreePack,
+            packQuantity: user.packQuantity
         }
     }
 })

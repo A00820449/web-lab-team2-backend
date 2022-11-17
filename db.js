@@ -8,17 +8,9 @@ const cardSchema = new mongoose.Schema({
     name: {type: String, required: true},
     description: {type: String, required: true},
     image_url: {type: String},
-    rarity: {type: String, enum: ["legendary", "epic", "rare", "common"]}
+    rarity: {type: String, enum: ["legendary", "epic", "rare", "common"]},
 })
 const Card = mongoose.model("Card", cardSchema)
-
-const cardInCollectionSchema = new mongoose.Schema({
-    user_id: {type: String, required: true},
-    card_id: {type: String, required: true},
-    quantity: {type: Number, required: true}
-})
-cardInCollectionSchema.index({user_id: 1, card_id: 1}, {unique: true})
-const CardInCollection = mongoose.model("CardInCollection", cardInCollectionSchema)
 
 const userSchema = new mongoose.Schema({
     username: {type: String, unique: true, required: true, index: true},
@@ -26,7 +18,12 @@ const userSchema = new mongoose.Schema({
     name: String,
     isAdmin: {type: Boolean, default: false},
     lastFreePack: {type: Number, default: -1},
-    packQuantity: {type: Number, default: 0}
+    packQuantity: {type: Number, default: 0},
+    cards: {
+        type: Map,
+        of: Number,
+        default: {}
+    }
 })
 userSchema.method("setPassword", async function (password){
     const hash = await bcrypt.hash(password, 10)
@@ -58,4 +55,4 @@ function connect() {
     })
 }
 
-module.exports = { User, Card, CardInCollection, AppData, close: mongoose.disconnect, connect }
+module.exports = { User, Card, AppData, close: mongoose.disconnect, connect }
