@@ -3,6 +3,10 @@ const { Card, close, connect } = require("./db")
 const fs = require("fs/promises")
 const path = require("path")
 const csv = require("csv-parse/sync")
+
+/**
+ * @type {import("axios").AxiosStatic}
+ */
 const axios = require("axios")
 
 async function downloadCSV() {
