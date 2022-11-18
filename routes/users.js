@@ -60,7 +60,15 @@ router.post("/auth", async (ctx, next)=>{
     ctx.status = 200
     ctx.body = {
         error: null,
-        token: token
+        token: token,
+        user: {
+            id: user._id.toString(),
+            name: user.name,
+            username: user.username,
+            isAdmin: user.isAdmin,
+            lastFreePack: user.lastFreePack,
+            packQuantity: user.packQuantity
+        }
     }
 })
 
