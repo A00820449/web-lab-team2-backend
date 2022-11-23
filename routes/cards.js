@@ -105,8 +105,6 @@ router.post("/openpack", async (ctx) => {
 
     const cards = await getRandomCards(cardsPerPack)
     
-    console.log(user.cards)
-
     for (const card of cards) {
         const i = user.cards.findIndex((cardentry) => cardentry.card.toString() === card._id.toString())
         if (i < 0) {
