@@ -8,6 +8,7 @@ const cardSchema = new mongoose.Schema({
     name: {type: String, required: true},
     description: {type: String, required: true},
     image_url: {type: String},
+    card_image_url: {type: String},
     rarity: {type: String, enum: ["legendary", "epic", "rare", "common"]},
 })
 const Card = mongoose.model("Card", cardSchema)
