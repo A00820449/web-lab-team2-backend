@@ -103,16 +103,22 @@ router.post("/openpack", async (ctx) => {
     const user = await User.findById(ctx.user?.id)
     if (!user?.packQuantity || user.packQuantity <= 0) {ctx.body = "User has no packs"; return ctx.status = 400}
 
-    //if (!user.cards) { user.cards = new Map() }
-
     const cards = await getRandomCards(cardsPerPack)
     
+    console.log(user.cards)
+
     for (const card of cards) {
-        const c = user.cards.get(card._id.toString()) || 0
-        user.cards.set(card._id.toString(), c + 1)
+        const i = user.cards.findIndex((cardentry) => cardentry.card.toString() === card._id.toString())
+        if (i < 0) {
+            user.cards.push({card: card._id, quantity: 1})
+        }
+        else {
+            user.cards[i].quantity += 1
+        }
     }
 
     user.packQuantity -= 1
+    
     await user.save()
     
     return ctx.body = JSON.stringify(cards)
@@ -120,6 +126,13 @@ router.post("/openpack", async (ctx) => {
 
 router.get("/openpacksim", async (ctx)=>{
     ctx.body = JSON.stringify(await getRandomCards(cardsPerPack))
+})
+
+router.get("/cardcol", async (ctx)=>{
+    if (!ctx.user.id) { return ctx.status = 400}
+
+    const user = await User.findById(ctx.user?.id, {cards: 1, _id: 0}).populate("cards.card")
+    return ctx.body = user
 })
 
 module.exports = router

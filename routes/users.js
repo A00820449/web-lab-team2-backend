@@ -92,7 +92,7 @@ router.get("/info", async (ctx)=>{
         return
     }
 
-    const user = await User.findOne({username: decoded.username})
+    const user = await User.findOne({username: decoded.username}, {cards: 0})
 
     if (!user) {
         ctx.status = 404
@@ -106,14 +106,7 @@ router.get("/info", async (ctx)=>{
     ctx.status = 200
     ctx.body = {
         error: null,
-        info: {
-            id: user._id.toString(),
-            name: user.name,
-            username: user.username,
-            isAdmin: user.isAdmin,
-            lastFreePack: user.lastFreePack,
-            packQuantity: user.packQuantity
-        }
+        info: user
     }
 })
 

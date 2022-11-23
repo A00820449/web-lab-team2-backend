@@ -20,9 +20,14 @@ const userSchema = new mongoose.Schema({
     lastFreePack: {type: Number, default: -1},
     packQuantity: {type: Number, default: 0},
     cards: {
-        type: Map,
-        of: Number,
-        default: {}
+        type: [{
+            card: {
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Card"
+            },
+            quantity: {type: Number, default: 1}
+        }],
+        defaut: []
     }
 })
 userSchema.method("setPassword", async function (password){
