@@ -1,7 +1,10 @@
 const Router = require("koa-router")
 const jwt = require("jsonwebtoken")
-const { Card, User, CardInCollection } = require("../db")
+const { Card, User } = require("../db")
 const { randomInt } = require("node:crypto")
+const { CronJob } = require('cron')
+const { readFileSync, existsSync, writeFileSync } = require("node:fs")
+const path = require("node:path")
 
 const router = new Router()
 const JWT_SECRET = process.env.JWT_SECRET || "secret"
@@ -127,10 +130,59 @@ router.get("/openpacksim", async (ctx)=>{
 })
 
 router.get("/cardcol", async (ctx)=>{
-    if (!ctx.user.id) { return ctx.status = 400}
+    if (!ctx.user?.id) { return ctx.status = 400}
 
     const user = await User.findById(ctx.user?.id, {cards: 1, _id: 0}).populate("cards.card")
-    return ctx.body = user
+
+    if (!user) { return ctx.status = 500 }
+
+    user.cards.sort((a,b)=>{
+        return b.quantity - a.quantity
+    })
+
+    return ctx.body = user.cards
+})
+
+
+let cur_pack = 0
+const packfile = path.resolve(__dirname, "_pack")
+if (existsSync(packfile)) {
+    /**
+     * @type {number}
+     */
+    const packfilecont = JSON.parse(readFileSync(packfile).toString())
+    cur_pack = packfilecont
+}
+
+const cronjob = new CronJob('0 * * * * *', () => {
+        cur_pack += 1
+        writeFileSync(packfile, JSON.stringify(cur_pack))
+		console.log('New pack:', cur_pack)
+        console.log("Time:", cronjob.nextDate().toMillis())
+	},
+	null, true, 'America/Los_Angeles'
+)
+
+console.log("next pack:", cronjob.nextDate().toMillis())
+
+router.get("/nextpack", async (ctx) => {
+
+    return ctx.body = { pack: cur_pack + 1, time: cronjob.nextDate().toMillis()}
+})
+
+router.post("/claimpack", async (ctx) => {
+    if (!ctx.user?.id) { return ctx.status = 400 }
+
+    const user = await User.findById(ctx.user.id)
+
+    if (!user.lastFreePack || user.lastFreePack >= cur_pack) { return ctx.status = 400 }
+
+    user.lastFreePack = cur_pack
+    user.packQuantity += 1
+
+    await user.save()
+
+    return ctx.body = { lastFreePack: user.lastFreePack, packQuantity: user.packQuantity}
 })
 
 module.exports = router
